@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener</title>
+</head>
+<body>
+    <h1>URL Shortener</h1>
+    
+    <h2>Login</h2>
+    <form id="login-form">
+        <input type="text" id="login-username" placeholder="Username" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+
+    <h2>Register</h2>
+    <form id="register-form">
+        <input type="text" id="register-username" placeholder="Username" required>
+        <input type="password" id="register-password" placeholder="Password" required>
+        <button type="submit">Register</button>
+    </form>
+
+    <script>
+        const loginForm = document.getElementById('login-form');
+        const loginUsername = document.getElementById('login-username');
+        const loginPassword = document.getElementById('login-password');
+        
+        const registerForm = document.getElementById('register-form');
+        const registerUsername = document.getElementById('register-username');
+        const registerPassword = document.getElementById('register-password');
+        
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const response = await fetch('/token-auth/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: loginUsername.value,
+                    password: loginPassword.value,
+                }),
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                window.location.href = '/url/'; // Redirect to the dashboard page
+            } else {
+                alert('Login failed');
+            }
+        });
+        
+        registerForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const response = await fetch('/register/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: registerUsername.value,
+                    password: registerPassword.value,
+                }),
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                alert('Registration successful');
+            } else {
+                alert('Registration failed');
+            }
+        });
+    </script>
+    <h2>Retrieve Original URL</h2>
+<form id="retrieve-url-form">
+    <input type="text" id="short-url" placeholder="Enter Shortened URL" required>
+    <button type="submit">Retrieve Original URL</button>
+    <p id="original-url"></p>
+</form>
+
+<script>
+    // Existing code...
+    
+    const retrieveUrlForm = document.getElementById('retrieve-url-form');
+    const shortUrlInput = document.getElementById('short-url');
+    const originalUrlParagraph = document.getElementById('original-url');
+
+    retrieveUrlForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Please log in first.');
+            return;
+        }
+        
+        const response = await fetch(`/short-url/${shortUrlInput.value}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${token}`,
+            },
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            originalUrlParagraph.textContent = `Original URL: ${data.original_url}`;
+        } else {
+            originalUrlParagraph.textContent = 'URL retrieval failed';
+        }
+    });
+</script>
+</body>
+</html>
+</body>
+</html>

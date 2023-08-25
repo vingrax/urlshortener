@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener - Dashboard</title>
+</head>
+<body>
+    <h1>URL Shortener - Dashboard</h1>
+    {% if user.is_authenticated %}
+    <p>User Authenticated:</p>
+    {% endif %}
+    <h2>Create Shortened URL</h2>
+    <form id="create-url-form">
+        <input type="text" id="original-url" placeholder="Enter URL to be shortened" required>
+        <button type="submit">Shorten URL</button>
+        <p id="shortened-url"></p>
+    </form>
+
+    <script>
+        const createUrlForm = document.getElementById('create-url-form');
+        const originalUrlInput = document.getElementById('original-url');
+        const shortenedUrlParagraph = document.getElementById("shortened-url");
+        
+        createUrlForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please log in first.');
+                return;
+            }
+            
+            const response = await fetch('/createurl/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`,
+                },
+                body: JSON.stringify({
+                    original_url: originalUrlInput.value,
+                }),
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                alert('URL shortened successfully');
+                shortenedUrlParagraph.innerHTML = `Shortened URL:<a href="/r/${data.short_url}" target="_blank">${data.short_url}</a>`;
+            } else {
+                alert('URL shortening failed');
+            }
+        });
+    </script>
+
+<h2>Retrieve Original URL</h2>
+<form id="retrieve-url-form">
+    <input type="text" id="short-url" placeholder="Enter Shortened URL" required>
+    <button type="submit">Retrieve Original URL</button>
+    <p id="retrieved-url"></p>
+</form>
+
+<script>    
+    const retrieveUrlForm = document.getElementById('retrieve-url-form');
+    const shortUrlInput = document.getElementById('short-url');
+    const originalUrlParagraph = document.getElementById('retrieved-url');
+
+    retrieveUrlForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Please log in first.');
+            return;
+        }
+        
+        const response = await fetch(`/short-url/${shortUrlInput.value}/`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Token ${token}`,
+            },
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            console.log(originalUrlParagraph)
+            originalUrlParagraph.textContent = `Original URL: ${data.original_url}`;
+        } else {
+            originalUrlParagraph.textContent = 'URL retrieval failed';
+        }
+    });
+</script>
+</body>
+</html>

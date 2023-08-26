@@ -47,7 +47,7 @@
             
             if (response.ok) {
                 localStorage.setItem('token', data.token);
-                window.location.href = '/url/'; // Redirect to the dashboard page
+                window.location.href = '/url/';
             } else {
                 alert('Login failed');
             }
@@ -77,45 +77,7 @@
             }
         });
     </script>
-    <h2>Retrieve Original URL</h2>
-<form id="retrieve-url-form">
-    <input type="text" id="short-url" placeholder="Enter Shortened URL" required>
-    <button type="submit">Retrieve Original URL</button>
-    <p id="original-url"></p>
-</form>
-
-<script>
-    // Existing code...
-    
-    const retrieveUrlForm = document.getElementById('retrieve-url-form');
-    const shortUrlInput = document.getElementById('short-url');
-    const originalUrlParagraph = document.getElementById('original-url');
-
-    retrieveUrlForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        
-        const token = localStorage.getItem('token');
-        if (!token) {
-            alert('Please log in first.');
-            return;
-        }
-        
-        const response = await fetch(`/short-url/${shortUrlInput.value}/`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Token ${token}`,
-            },
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            originalUrlParagraph.textContent = `Original URL: ${data.original_url}`;
-        } else {
-            originalUrlParagraph.textContent = 'URL retrieval failed';
-        }
-    });
-</script>
+ 
 </body>
 </html>
 </body>

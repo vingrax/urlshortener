@@ -4,6 +4,7 @@
     <title>URL Shortener - Dashboard</title>
 </head>
 <body>
+    
     <h1>URL Shortener - Dashboard</h1>
     {% if user.is_authenticated %}
     <p>User Authenticated:</p>
@@ -43,8 +44,7 @@
             const data = await response.json();
             
             if (response.ok) {
-                alert('URL shortened successfully');
-                shortenedUrlParagraph.innerHTML = `Shortened URL:<a href="/r/${data.short_url}" target="_blank">${data.short_url}</a>`;
+                shortenedUrlParagraph.innerHTML = `Shortened URL:<a href="/r/${data.short_url}" target="_blank">${window.location.origin }/r/${data.short_url}</a>`;
             } else {
                 alert('URL shortening failed');
             }
@@ -71,8 +71,18 @@
             alert('Please log in first.');
             return;
         }
+        let shortUrl = shortUrlInput.value.trim();
+
+        const prefix = `${window.location.origin}/r/`;
+        if (shortUrl.startsWith(prefix)) {
+            shortUrl = shortUrl.substring(prefix.length);
+        }
+        else{
+            alert('Not a valid URL');
+            return;
+        }
         
-        const response = await fetch(`/short-url/${shortUrlInput.value}/`, {
+        const response = await fetch(`/short-url/${shortUrl}/`, {
             method: 'GET',
             headers: {
                 'Authorization': `Token ${token}`,
@@ -82,7 +92,6 @@
         const data = await response.json();
         
         if (response.ok) {
-            console.log(originalUrlParagraph)
             originalUrlParagraph.textContent = `Original URL: ${data.original_url}`;
         } else {
             originalUrlParagraph.textContent = 'URL retrieval failed';

@@ -37,7 +37,6 @@ def generate_short_url(length=8):
         hash_object = hashlib.md5(random_string.encode())
         short_url = hash_object.hexdigest()[:length]
         
-        # Check if the generated short URL is already in use
         if not ShortenedURL.objects.filter(short_url=short_url).exists():
             return short_url
         return generate_short_url()
@@ -48,7 +47,6 @@ def redirect_to_original_url(request, short_url):
         original_url = shortened_url.original_url
         return redirect(original_url)
     except ShortenedURL.DoesNotExist:
-        # Handle the case when the short URL is not found
         return HttpResponse("Short URL not found", status=404)
     
 @api_view(['POST'])
